@@ -34,13 +34,74 @@ here()
 ```
 
 ```{r}
-df<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_confirmed_global.csv"))
+df<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_deaths_global.csv"))
 head(df)
 
 china<- df%>%
   filter(., `Country/Region` == "China" | `Country/Region` == "Taiwan*")
+china[34,1]<- "Taiwan"
 
 head(china)
+```
+
+
+```{r}
+map<- st_read(here("sheng","CN-sheng-A.shp"))%>%
+  filter(!is.na(name))
+map<- map[,-3:-1]
+
+head(map)
+
+map_sim<- st_simplify(map, dTolerance = 5000)
+tmap_mode("plot")
+qtm(map_sim)
+```
+
+
+```{r}
+china<- china%>%
+  st_as_sf(., coords = c("Long", "Lat"), crs = 4326)%>%
+  st_transform(., crs = st_crs(map))
+
+
+qtm(map_sim)+
+tm_shape(china)+
+  tm_dots('2/7/21',breaks = c(0,5,10,15,20,25,50,100,150,max(china$`2/7/21`)))
 
 ```
+
+```{r}
+print(map$name)
+print(china$`Province/State`)
+map$name<- c("Heilongjiang","Inner Mongolia","Xinjiang","Jilin","Liaoning","Hebei","Gansu","Beijing","Shanxi","Tianjin","Shaanxi","Qinghai","Ningxia","Shandong","Tibet","Henan","Jiangsu","Anhui","Sichuan","Hubei","Shanghai","Chongqing","Zhejiang","Jiangxi","Hunan","Yunan","Guizhou","Fujian","Guangxi","Taiwan","Guangdong","Hainan")
+```
+
+```{r}
+china_death<- st_join(map_sim,china)
+
+head(china_death)
+
+tm_shape(china_death)+
+  tm_fill('2/7/21')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
