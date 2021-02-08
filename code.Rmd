@@ -77,7 +77,7 @@ china<- china%>%
 qtm(map_sim)+
 tm_shape(china)+
   tm_dots('2/7/21')
-#john hopkins 给的河南 河北 centroid 不太对。。
+#john hopkins 给的河南河北 centroid 不太对。。
 ```
 
 ```{r}
