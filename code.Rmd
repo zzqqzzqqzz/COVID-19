@@ -40,6 +40,7 @@ head(df)
 #截止到2/7 总共死亡人数
 #或者要看确诊人数的话？
 #"time_series_covid19_deaths_global.csv" 里面 death 改成 confirmed 就好
+#还有一些文件夹没仔细看。。
 
 china<- df%>%
   filter(., `Country/Region` == "China" | `Country/Region` == "Taiwan*")
