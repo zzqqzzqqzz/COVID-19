@@ -36,6 +36,10 @@ here()
 ```{r}
 df<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_deaths_global.csv"))
 head(df)
+#covid 数据
+#截止到2/7 总共死亡人数
+#或者要看确诊人数的话？
+#"time_series_covid19_deaths_global.csv" 里面 death 改成 confirmed 就好
 
 china<- df%>%
   filter(., `Country/Region` == "China" | `Country/Region` == "Taiwan*")
@@ -45,9 +49,17 @@ head(china)
 ```
 
 
+全国地图下载地址：
+http://www.resdc.cn/data.aspx?DATAID=200
+
 ```{r}
+#全国地图
 map<- st_read(here("sheng","CN-sheng-A.shp"))%>%
-  filter(!is.na(name))
+  filter(!is.na(name))%>%
+  add_row(name = "Hong Kong")%>%
+  add_row(name = "Macau")
+#没有港澳。。
+
 map<- map[,-3:-1]
 
 head(map)
@@ -57,35 +69,60 @@ tmap_mode("plot")
 qtm(map_sim)
 ```
 
-
 ```{r}
 china<- china%>%
   st_as_sf(., coords = c("Long", "Lat"), crs = 4326)%>%
   st_transform(., crs = st_crs(map))
 
-
 qtm(map_sim)+
 tm_shape(china)+
-  tm_dots('2/7/21',breaks = c(0,5,10,15,20,25,50,100,150,max(china$`2/7/21`)))
-
+  tm_dots('2/7/21')
+#john hopkins 给的河南 河北 centroid 不太对。。
 ```
 
 ```{r}
-print(map$name)
+#merge 的准备工作
+print(map_sim$name)
 print(china$`Province/State`)
-map$name<- c("Heilongjiang","Inner Mongolia","Xinjiang","Jilin","Liaoning","Hebei","Gansu","Beijing","Shanxi","Tianjin","Shaanxi","Qinghai","Ningxia","Shandong","Tibet","Henan","Jiangsu","Anhui","Sichuan","Hubei","Shanghai","Chongqing","Zhejiang","Jiangxi","Hunan","Yunan","Guizhou","Fujian","Guangxi","Taiwan","Guangdong","Hainan")
+map_sim$name<- c("Heilongjiang","Inner Mongolia","Xinjiang","Jilin","Liaoning","Hebei","Gansu","Beijing","Shanxi","Tianjin","Shaanxi","Qinghai","Ningxia","Shandong","Tibet","Henan","Jiangsu","Anhui","Sichuan","Hubei","Shanghai","Chongqing","Zhejiang","Jiangxi","Hunan","Yunan","Guizhou","Fujian","Guangxi","Taiwan","Guangdong","Hainan","Hong Kong","Macau")
+head(map_sim)
+
 ```
+只好另外下载hk 和mac数据
+https://www.gadm.org/download_country_v3.html
 
 ```{r}
-china_death<- st_join(map_sim,china)
+map_mac<- st_read(here("gadm36_MAC_shp","gadm36_MAC_0.shp"))%>%
+  st_transform(., crs = st_crs(map))
+map_hk<- st_read(here("gadm36_HKG_shp","gadm36_HKG_0.shp"))%>%
+  st_transform(., crs = st_crs(map))
 
-head(china_death)
+```
+
+```{r merge}
+#给hopkins的数据改成map的geometry
+china_death<- china%>%
+  st_drop_geometry(.)%>%
+  merge(map_sim,., by.x = "name", by.y = "Province/State")
+
+#加上hk 和mac 的 geometry
+china_death[13,388]<- map_hk[1,3]
+china_death[21,388]<- map_mac[1,3]
 
 tm_shape(china_death)+
-  tm_fill('2/7/21')
+  tm_polygons('2/7/21')
 ```
 
 
+
+```{r}
+hist(china_death$`2/7/21`, breaks = 5000)
+```
+
+一些问题：
+怎么break合适
+最好能另外label一下港澳的数据 城市太小了看不见
+formatting..
 
 
 
