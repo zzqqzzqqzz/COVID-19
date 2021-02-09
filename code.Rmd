@@ -93,6 +93,7 @@ head(map_sim)
 https://www.gadm.org/download_country_v3.html
 
 ```{r}
+#读一下港澳shp
 map_mac<- st_read(here("gadm36_MAC_shp","gadm36_MAC_0.shp"))%>%
   st_transform(., crs = st_crs(map))
 map_hk<- st_read(here("gadm36_HKG_shp","gadm36_HKG_0.shp"))%>%
@@ -110,13 +111,6 @@ china_death<- china%>%
 china_death[13,388]<- map_hk[1,3]
 china_death[21,388]<- map_mac[1,3]
 
-tm_shape(china_death)+
-  tm_polygons('2/7/21')
-```
-
-
-
-```{r}
 hist(china_death$`2/7/21`, breaks = 5000)
 ```
 
@@ -125,9 +119,21 @@ hist(china_death$`2/7/21`, breaks = 5000)
 最好能另外label一下港澳的数据 城市太小了看不见
 formatting..
 
+```{r}
+tm_shape(china_death)+
+  tm_polygons(col = '2/7/21',
+              border.alpha = 0.5,
+              style = "log10_pretty")+
+  tm_layout(frame = FALSE)
+```
+
+```{r}
+ggplot(china_death,aes(`2/7/21`,name))+
+  geom_dotplot()
+  
 
 
-
+```
 
 
 
