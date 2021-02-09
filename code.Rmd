@@ -34,7 +34,7 @@ here()
 ```
 
 ```{r}
-df<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_deaths_global.csv"))
+df<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_confirmed_global.csv"))
 head(df)
 #covid 数据
 #截止到2/7 总共死亡人数
