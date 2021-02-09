@@ -34,19 +34,20 @@ here()
 ```
 
 ```{r}
-df<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_confirmed_global.csv"))
-head(df)
+df_con<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_confirmed_global.csv"))
+head(df_con)
+
 #covid 数据
 #截止到2/7 总共死亡人数
 #或者要看确诊人数的话？
 #"time_series_covid19_deaths_global.csv" 里面 death 改成 confirmed 就好
 #还有一些文件夹没仔细看。。
 
-china<- df%>%
+china_con<- df_con%>%
   filter(., `Country/Region` == "China" | `Country/Region` == "Taiwan*")
-china[34,1]<- "Taiwan"
+china_con[34,1]<- "Taiwan"
 
-head(china)
+head(china_con)
 ```
 
 
@@ -71,12 +72,12 @@ qtm(map_sim)
 ```
 
 ```{r}
-china<- china%>%
+china_con<- china_con%>%
   st_as_sf(., coords = c("Long", "Lat"), crs = 4326)%>%
   st_transform(., crs = st_crs(map))
 
 qtm(map_sim)+
-tm_shape(china)+
+tm_shape(china_con)+
   tm_dots('2/7/21')
 #john hopkins 给的河南河北 centroid 不太对。。
 ```
@@ -84,7 +85,7 @@ tm_shape(china)+
 ```{r}
 #merge 的准备工作
 print(map_sim$name)
-print(china$`Province/State`)
+print(china_con$`Province/State`)
 map_sim$name<- c("Heilongjiang","Inner Mongolia","Xinjiang","Jilin","Liaoning","Hebei","Gansu","Beijing","Shanxi","Tianjin","Shaanxi","Qinghai","Ningxia","Shandong","Tibet","Henan","Jiangsu","Anhui","Sichuan","Hubei","Shanghai","Chongqing","Zhejiang","Jiangxi","Hunan","Yunan","Guizhou","Fujian","Guangxi","Taiwan","Guangdong","Hainan","Hong Kong","Macau")
 head(map_sim)
 
@@ -103,15 +104,15 @@ map_hk<- st_read(here("gadm36_HKG_shp","gadm36_HKG_0.shp"))%>%
 
 ```{r merge}
 #给hopkins的数据改成map的geometry
-china_death<- china%>%
+china_death<- china_con%>%
   st_drop_geometry(.)%>%
   merge(map_sim,., by.x = "name", by.y = "Province/State")
 
 #加上hk 和mac 的 geometry
-china_death[13,388]<- map_hk[1,3]
-china_death[21,388]<- map_mac[1,3]
+china_con[13,388]<- map_hk[1,3]
+china_con[21,388]<- map_mac[1,3]
 
-hist(china_death$`2/7/21`, breaks = 5000)
+hist(china_con$`2/7/21`, breaks = 5000)
 ```
 
 一些问题：
@@ -120,7 +121,7 @@ hist(china_death$`2/7/21`, breaks = 5000)
 formatting..
 
 ```{r}
-tm_shape(china_death)+
+tm_shape(china_con)+
   tm_polygons(col = '2/7/21',
               border.alpha = 0.5,
               style = "log10_pretty")+
@@ -128,10 +129,6 @@ tm_shape(china_death)+
 ```
 
 ```{r}
-ggplot(china_death,aes(`2/7/21`,name))+
-  geom_dotplot()
-  
-
 
 ```
 
