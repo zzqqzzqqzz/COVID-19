@@ -38,9 +38,7 @@ df_con<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_se
 head(df_con)
 
 #covid 数据
-#截止到2/7 总共死亡人数
-#或者要看确诊人数的话？
-#"time_series_covid19_deaths_global.csv" 里面 death 改成 confirmed 就好
+#截止到2/7 累计确诊人数
 #还有一些文件夹没仔细看。。
 
 china_con<- df_con%>%
@@ -100,11 +98,14 @@ map_mac<- st_read(here("gadm36_MAC_shp","gadm36_MAC_0.shp"))%>%
 map_hk<- st_read(here("gadm36_HKG_shp","gadm36_HKG_0.shp"))%>%
   st_transform(., crs = st_crs(map))
 
+tm_shape(map_hk)+
+  tm_polygons()+
+  tm_text("GID_0")
 ```
 
 ```{r merge}
 #给hopkins的数据改成map的geometry
-china_death<- china_con%>%
+china_con<- china_con%>%
   st_drop_geometry(.)%>%
   merge(map_sim,., by.x = "name", by.y = "Province/State")
 
@@ -120,7 +121,7 @@ hist(china_con$`2/7/21`, breaks = 5000)
 最好能另外label一下港澳的数据 城市太小了看不见
 formatting..
 
-```{r}
+```{r 中国截止2/7 累计确诊人数}
 tm_shape(china_con)+
   tm_polygons(col = '2/7/21',
               border.alpha = 0.5,
@@ -128,10 +129,50 @@ tm_shape(china_con)+
   tm_layout(frame = FALSE)
 ```
 
-```{r}
+```{r 中国截止2/7 累计死亡人数}
+df_death<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_deaths_global.csv"))
 
+china_death<- df_death%>%
+  filter(., `Country/Region` == "China" | `Country/Region` == "Taiwan*")
+china_death[34,1]<- "Taiwan"
+
+china_death<- china_death%>%
+  merge(map_sim,., by.x = "name", by.y = "Province/State")
+
+china_death[13,390]<- map_hk[1,3]
+china_death[21,390]<- map_mac[1,3]
+
+tm_shape(china_death)+
+  tm_polygons(col = '2/7/21',
+              border.alpha = 0.5,
+              style = "log10_pretty")+
+  tm_layout(frame = FALSE)
+
+hist(china_death$`2/7/21`, breaks = 5000)
 ```
 
+```{r 中国截止2/7 累计康复人数}
+df_rec<- read_csv(here("csse_covid_19_data","csse_covid_19_time_series","time_series_covid19_recovered_global.csv"))
+
+china_rec<- df_rec%>%
+  filter(., `Country/Region` == "China" | `Country/Region` == "Taiwan*")
+china_rec[34,1]<- "Taiwan"
+
+china_rec<- china_rec%>%
+  merge(map_sim,., by.x = "name", by.y = "Province/State")
+
+china_rec[13,390]<- map_hk[1,3]
+china_rec[21,390]<- map_mac[1,3]
+
+tm_shape(china_rec)+
+  tm_polygons(col = '2/7/21',
+              border.alpha = 0.5,
+              style = "log10_pretty",
+              palette = "Blues")+
+  tm_layout(frame = FALSE)
+
+hist(china_rec$`2/7/21`, breaks = 5000)
+```
 
 
 
