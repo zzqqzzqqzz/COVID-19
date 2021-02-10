@@ -67,6 +67,13 @@ head(map)
 map_sim<- st_simplify(map, dTolerance = 5000)
 tmap_mode("plot")
 qtm(map_sim)
+
+'''
+map sim
+回头加上港澳的shp以后画地图会很慢
+所以要调试的话可以先用地图跑一遍
+这个快一点
+'''
 ```
 
 ```{r}
@@ -174,10 +181,59 @@ tm_shape(china_rec)+
 hist(china_rec$`2/7/21`, breaks = 5000)
 ```
 
+```{r}
 
+write_csv(china_death, "china_death.csv")
+write_csv(china_con, "china_con.csv")
+write_csv(china_rec, "china_rec.csv")
 
+```
 
+```{r}
 
+c_death<- china_death[c("name","SHENG_ID","1/24/20","2/13/20","3/4/20","3/24/20","geometry")]
+c_rec<- china_rec[c("name","SHENG_ID","1/24/20","2/13/20","3/4/20","3/24/20","geometry")]
+c_con<- china_con[c("name","SHENG_ID","1/24/20","2/13/20","3/4/20","3/24/20","geometry")]
+
+```
+
+```{r}
+tm_shape(c_con)+
+  tm_polygons(col = "1/24/20",
+              border.alpha = 0.5,
+              style = "log10_pretty")+
+  tm_layout(frame = FALSE)
+```
+
+```{r}
+
+jan<- tm_shape(c_con)+
+  tm_polygons(col = '1/24/20',
+              border.alpha = 0.5,
+              style = "log10_pretty")+
+  tm_layout(frame = FALSE)
+
+feb<- tm_shape(c_con)+
+  tm_polygons(col = '2/13/20',
+              border.alpha = 0.5,
+              style = "log10_pretty")+
+  tm_layout(frame = FALSE)
+
+mar4<- tm_shape(c_con)+
+  tm_polygons(col = '3/4/20',
+              border.alpha = 0.5,
+              style = "log10_pretty")+
+  tm_layout(frame = FALSE)
+
+mar24<- tm_shape(c_con)+
+  tm_polygons(col = '3/24/20',
+              border.alpha = 0.5,
+              style = "log10_pretty")+
+  tm_layout(frame = FALSE)
+
+tmap_arrange(jan,feb,mar4,mar24, ncol = 2)
+
+```
 
 
 
