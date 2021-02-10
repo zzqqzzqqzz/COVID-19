@@ -234,7 +234,10 @@ mar24<- tm_shape(c_con)+
 tmap_arrange(jan,feb,mar4,mar24, ncol = 2)
 
 ```
-
+一些问题：
+怎么break合适 湖北数据压倒性的多
+最好能另外label一下港澳的数据 城市太小了看不见
+formatting..
 
 
 
