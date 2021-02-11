@@ -194,7 +194,7 @@ write_csv(china_rec, "china_rec.csv")
 c_death<- china_death[c("name","SHENG_ID","1/24/20","2/13/20","3/4/20","3/24/20","geometry")]
 c_rec<- china_rec[c("name","SHENG_ID","1/24/20","2/13/20","3/4/20","3/24/20","geometry")]
 c_con<- china_con[c("name","SHENG_ID","1/24/20","2/13/20","3/4/20","3/24/20","geometry")]
-
+write_csv(c_con, "c_con.csv")
 ```
 
 ```{r}
